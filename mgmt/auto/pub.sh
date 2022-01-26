@@ -17,12 +17,13 @@ let NEXT=$REVISION+1
 echo "Last release is $RELEASE, revision is $REVISION, next is $NEXT"
 
 VERSION="1.0.$NEXT"
-TAG="v$VERSION"
+VERSION2="v1.0.$NEXT"
+TAG="releases-v$VERSION"
 echo "publish version $VERSION as tag $TAG"
 
-cat mgmt/package.json |sed "s|\"version\":.*|\"version\":\"$VERSION\",|g" > tmp.json && mv tmp.json mgmt/package.json &&
+cat package.json |sed "s|\"version\":.*|\"version\":\"$VERSION\",|g" > tmp.json && mv tmp.json package.json &&
 cat releases/package.json |sed "s|\"version\":.*|\"version\":\"$VERSION\",|g" > tmp.json && mv tmp.json releases/package.json &&
-cat releases/releases.js |sed "s|const\ latest\ =.*|const latest = '$TAG';|g" > tmp.js && mv tmp.js releases/releases.js
+cat releases/releases.js |sed "s|const\ latest\ =.*|const latest = '$VERSION2';|g" > tmp.js && mv tmp.js releases/releases.js
 git ci -am "Update version to $TAG"
 
 git push

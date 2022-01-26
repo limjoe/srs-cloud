@@ -1,13 +1,13 @@
-name: "Release"
+name: "Release mgmt releases manager"
 
 on:
   push:
     tags:
-      - v1*
+      - releases-v1*
 
 jobs:
-  k8s:
-    name: release-k8s
+  mgmt:
+    name: release-mgmt
     runs-on: ubuntu-20.04
 
     steps:
@@ -20,20 +20,20 @@ jobs:
       # Build
       # The github.ref is, for example, refs/tags/v1.0.52
       # Generate variables like:
-      #   SRS_TAG=v1.0.52
-      #   SRS_MAJOR=1
+      #   SRS_TAG=releases-v1.0.52
+      #   SRS_MAJOR=releases-1
       # @see https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
       - name: Generate varaiables
         run: |
           SRS_TAG=$(echo ${{ github.ref }}| awk -F '/' '{print $3}')
           echo "SRS_TAG=$SRS_TAG" >> $GITHUB_ENV
-          SRS_MAJOR=$(echo $SRS_TAG| cut -c 2)
+          SRS_MAJOR=$(echo $SRS_TAG| awk -F '.' '{print $1}' |sed 's/-v/-/g')
           echo "SRS_MAJOR=$SRS_MAJOR" >> $GITHUB_ENV
       # Build SRS image
       - name: Build SRS docker image
         run: |
-          echo "Release ossrs/srs-terraform:releases-$SRS_TAG"
-          docker build --tag ossrs/srs-terraform:releases-$SRS_TAG -f releases/Dockerfile .
+          echo "Release ossrs/srs-terraform:$SRS_TAG"
+          docker build --tag ossrs/srs-terraform:$SRS_TAG -f mgmt/releases/Dockerfile .
 
       ################################################################
       # Aliyun ACR
@@ -45,8 +45,8 @@ jobs:
           password: "${{ secrets.ACR_PASSWORD }}"
       - name: Push to Aliyun docker hub
         run: |
-          docker tag ossrs/srs-terraform:releases-$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:releases-$SRS_TAG
-          docker tag ossrs/srs-terraform:releases-$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:releases-$SRS_MAJOR
+          docker tag ossrs/srs-terraform:$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:$SRS_TAG
+          docker tag ossrs/srs-terraform:$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:$SRS_MAJOR
           docker push --all-tags registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform
 
       ################################################################
@@ -59,5 +59,5 @@ jobs:
       # K8S for terraform versions
       - name: Release terraform versions to Aliyun ACK
         run: |-
-          kubectl set image deploy/srs-terraform-deploy releases=registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:releases-$SRS_TAG
+          kubectl set image deploy/srs-terraform-deploy releases=registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:$SRS_TAG
           kubectl describe deploy/srs-terraform-deploy

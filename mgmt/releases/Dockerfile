@@ -1,6 +1,6 @@
 FROM node:slim
 
-COPY releases /releases
+COPY mgmt/releases /releases
 RUN cd /releases && npm i
 
 WORKDIR /releases
