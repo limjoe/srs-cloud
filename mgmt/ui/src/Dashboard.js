@@ -26,7 +26,7 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     const token = Token.load();
-    axios.post('/terraform/v1/mgmt/srs/secret', {
+    axios.post('/terraform/v1/hooks/srs/secret', {
       ...token,
     }).then(res => {
       setSecret(res.data.data);

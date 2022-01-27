@@ -7,7 +7,7 @@ on:
 
 jobs:
   mgmt:
-    name: release-mgmt
+    name: releases-for-mgmt
     runs-on: ubuntu-20.04
 
     steps:

@@ -21,35 +21,53 @@ const auth = require('./auth');
 const utils = require('./utils');
 const system = require('./system');
 const threads = require('./threads');
-const hooks = require('./hooks');
 
+// Start all workers threads first.
+threads.run();
+
+// Create koa webserver.
 const app = new Koa();
 
-// Always enable CORS and parse body.
+// Always enable CORS for statics or apis.
 app.use(Cors());
-app.use(BodyParser());
 
-// For Error handler.
-app.use(async (ctx, next) => {
-  try {
-    await next();
-  } catch (e) {
-    ctx.status = e.status || 500;
-    ctx.body = utils.asResponse(e.code || 1, {
-      message: e.message || e.err?.message || 'unknown error',
-    });
-    console.error(e);
-  }
-});
-
-// For backend APIs, with specified path, by /terraform/v1/mgmt/
-if (true) {
-  const router = new Router();
-  versions.handle(auth.handle(system.handle(router)));
-  hooks.handle(router);
-  app.use(router.routes());
+///////////////////////////////////////////////////////////////////////////////////////////
+//   Proxy Server sections.
+///////////////////////////////////////////////////////////////////////////////////////////
+function withLogs(options) {
+  return {
+    ...options,
+    logs: (ctx, target) => {
+      console.log('%s - %s %s proxy to -> %s',
+        new Date().toISOString(),
+        ctx.req.method,
+        ctx.req.oldPath,
+        new URL(ctx.req.url, target),
+      );
+    },
+  };
 }
 
+// For registered modules, by /terraform/v1/hooks/
+app.use(proxy('/terraform/v1/hooks/', withLogs({target: 'http://127.0.0.1:2021/'})));
+// Compatible with old APIs, to work with running SRS wihtout restart them.
+// TODO: FIXME: Remove it when all SRS container restarted.
+app.use(proxy('/terraform/v1/mgmt/srs/hooks', withLogs({
+  target: 'http://127.0.0.1:2021/',
+  rewrite: path => path.replace('/terraform/v1/mgmt/srs/hooks', '/terraform/v1/hooks/srs/verify'),
+})));
+
+// Proxy to SRS HTTP streaming, console and player, by /api/, /rtc/, /live/, /console/, /players/
+// See https://github.com/vagusX/koa-proxies
+app.use(proxy('/api/', withLogs({target: 'http://127.0.0.1:1985/'})));
+app.use(proxy('/rtc/', withLogs({target: 'http://127.0.0.1:1985/'})));
+app.use(proxy('/*/*.(flv|m3u8|ts|aac|mp3)', withLogs({target: 'http://127.0.0.1:8080/'})));
+app.use(proxy('/console/', withLogs({target: 'http://127.0.0.1:8080/'})));
+app.use(proxy('/players/', withLogs({target: 'http://127.0.0.1:8080/'})));
+
+///////////////////////////////////////////////////////////////////////////////////////////
+//   Static File Server sections.
+///////////////////////////////////////////////////////////////////////////////////////////
 // For source files like srs.tar.gz, by /terraform/v1/sources/
 app.use(mount('/terraform/v1/sources/', serve('./sources')));
 
@@ -81,31 +99,32 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-// Proxy for special path of SRS, by /console or /players
+///////////////////////////////////////////////////////////////////////////////////////////
+//   API sections.
+///////////////////////////////////////////////////////////////////////////////////////////
+// !!! Start body-parser after proxies, see https://github.com/vagusX/koa-proxies/issues/55
+// Start body-parser only for APIs, which requires the body.
+app.use(BodyParser());
+
+// For Error handler.
 app.use(async (ctx, next) => {
-  const withQuery = (path) => [path, ctx.request.querystring].filter(e => e).join('?');
-  if (ctx.request.path === '/console') return ctx.response.redirect(withQuery('/console/'));
-  if (ctx.request.path === '/players') return ctx.response.redirect(withQuery('/players/'));
-  await next();
+  try {
+    await next();
+  } catch (e) {
+    ctx.status = e.status || 500;
+    ctx.body = utils.asResponse(e.code || 1, {
+      message: e.message || e.err?.message || 'unknown error',
+    });
+    console.error(e);
+  }
 });
 
-// Proxy to SRS HTTP streaming, console and player, by /api/, /rtc/, or /
-// See https://github.com/vagusX/koa-proxies
-app.use(proxy('/api/', {
-  target: 'http://127.0.0.1:1985/api/',
-  rewrite: path => path.replace(/^\/api\//, '/'),
-}));
-app.use(proxy('/rtc/', {
-  target: 'http://127.0.0.1:1985/rtc/',
-  rewrite: path => path.replace(/^\/rtc\//, '/'),
-}));
-app.use(proxy('/', {
-  target: 'http://127.0.0.1:8080',
-}));
+// For backend APIs, with specified path, by /terraform/v1/mgmt/
+const router = new Router();
+versions.handle(auth.handle(system.handle(router)));
+app.use(router.routes());
 
-// Start all workers threads.
-threads.run();
-
+///////////////////////////////////////////////////////////////////////////////////////////
 const config = {
   port: process.env.PORT || 2022,
 }
