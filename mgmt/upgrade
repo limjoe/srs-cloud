@@ -26,6 +26,11 @@ fi
 cd $WORK_DIR && git remote -v && git branch -vva
 if [[ $? -ne 0 ]]; then echo "Prepare upgrade failed"; exit 1; fi
 
+# Cache the node container before restart.
+# TODO: FIXME: REMOVE-NEXT-RELEASE: Cache by the lighthouse image itself.
+docker pull registry.cn-hangzhou.aliyuncs.com/ossrs/node:slim
+if [[ $? -ne 0 ]]; then echo "Cache the node container before restart failed"; exit 1; fi
+
 if [[ ! -d /usr/local/srs-terraform && $(uname -s) == 'Darwin' ]]; then
   echo "Directly finish upgrade for macOS development"
   sleep 3; exit 0;
