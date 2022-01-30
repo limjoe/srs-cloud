@@ -48,3 +48,5 @@ jobs:
           docker tag ossrs/srs-terraform:$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:$SRS_TAG
           docker tag ossrs/srs-terraform:$SRS_TAG registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform:$SRS_MAJOR
           docker push --all-tags registry.cn-hangzhou.aliyuncs.com/ossrs/srs-terraform
+          echo "Release ok, please see:"
+          echo "  https://cr.console.aliyun.com/repository/cn-hangzhou/ossrs/srs-terraform/images"
