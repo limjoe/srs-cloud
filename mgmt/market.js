@@ -77,7 +77,8 @@ async function startContainer() {
     --add-host=mgmt.srs.local:${privateIPv4.address} \\
     -v ${envFile}:/srs-terraform/hooks/.env \\
     -p ${metadata.market.hooks.port}:${metadata.market.hooks.port} \\
-    ${metadata.market.hooks.image}`;
+    ${metadata.market.hooks.image} \\
+    node . >hooks.log 2>&1`;
   console.log(`Thread #market: docker run args ip=${privateIPv4.name}/${privateIPv4.address}, docker run ${dockerArgs}`);
 
   // Only remove the container when got ID, to avoid fail for CentOS.
