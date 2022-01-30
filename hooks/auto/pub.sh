@@ -11,19 +11,17 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-RELEASE=$(git describe --tags --abbrev=0 --match releases-*)
+RELEASE=$(git describe --tags --abbrev=0 --match hooks-*)
 REVISION=$(echo $RELEASE|awk -F . '{print $3}')
 let NEXT=$REVISION+1
 echo "Last release is $RELEASE, revision is $REVISION, next is $NEXT"
 
 VERSION="1.0.$NEXT"
 VERSION2="v1.0.$NEXT"
-TAG="releases-v$VERSION"
+TAG="hooks-v$VERSION"
 echo "publish version $VERSION as tag $TAG"
 
 cat package.json |sed "s|\"version\":.*|\"version\":\"$VERSION\",|g" > tmp.json && mv tmp.json package.json &&
-cat releases/package.json |sed "s|\"version\":.*|\"version\":\"$VERSION\",|g" > tmp.json && mv tmp.json releases/package.json &&
-cat releases/releases.js |sed "s|const\ latest\ =.*|const latest = '$VERSION2';|g" > tmp.js && mv tmp.js releases/releases.js
 git ci -am "Update version to $TAG"
 
 git push
