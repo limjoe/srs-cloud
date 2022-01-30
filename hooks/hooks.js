@@ -13,7 +13,7 @@ const errs = require('js-core/errs');
 const utils = require('js-core/utils');
 const consts = require('js-core/consts');
 const ioredis = require('ioredis');
-const redis = require('js-core/redis').create({config: consts.redis, redis: ioredis});
+const redis = require('js-core/redis').create({config: config.redis, redis: ioredis});
 const jwt = require('jsonwebtoken');
 
 exports.handle = (router) => {
