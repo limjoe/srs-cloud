@@ -1,7 +1,8 @@
 FROM node:slim
 
-COPY hooks /hooks
-RUN cd /hooks && npm i
+COPY hooks /srs-terraform/hooks
+COPY js-core /srs-terraform/js-core
+RUN cd /srs-terraform/hooks && npm i
 
-WORKDIR /hooks
+WORKDIR /srs-terraform/hooks
 CMD ["node", "."]
