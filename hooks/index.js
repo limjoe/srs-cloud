@@ -8,6 +8,7 @@ const path = require('path');
     dotenv.config({path: path.join(envDir, '.env')});
   }
 });
+console.log(`load envs MGMT_PASSWORD=${'*'.repeat(process.env.MGMT_PASSWORD?.length)}`);
 
 const Koa = require('koa');
 const Router = require('koa-router');

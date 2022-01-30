@@ -72,8 +72,10 @@ async function startContainer() {
   console.log(`Thread #market: start container`);
 
   const privateIPv4 = await utils.discoverPrivateIPv4();
+  const envFile = `${process.cwd()}/.env`;
   const dockerArgs = `-d --restart always --privileged -it --name ${metadata.market.hooks.name} \\
     --add-host=mgmt.srs.local:${privateIPv4.address} \\
+    -v ${envFile}:/srs-terraform/hooks/.env \\
     -p ${metadata.market.hooks.port}:${metadata.market.hooks.port} \\
     ${metadata.market.hooks.image}`;
   console.log(`Thread #market: docker run args ip=${privateIPv4.name}/${privateIPv4.address}, docker run ${dockerArgs}`);
