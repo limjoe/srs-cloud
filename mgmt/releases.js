@@ -92,6 +92,10 @@ async function firstRun() {
     return;
   }
 
+  // To prevent boot again and again.
+  await redis.set(consts.SRS_FIRST_BOOT_DONE, 1);
+  console.log(`Thread #${metadata.releases.name}: boot start to setup`);
+
   try {
     // Because we already create the container, and cached the last SRS 4.0 image, also set the hosts for hooks by
     // --add-host which is incorrect for new machine, so we must delete the container and restart it when first run.

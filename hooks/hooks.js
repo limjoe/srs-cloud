@@ -49,10 +49,6 @@ exports.handle = (router) => {
 };
 
 async function init() {
-  // To prevent boot again and again.
-  await redis.set(consts.SRS_FIRST_BOOT_DONE, 1);
-  console.log(`Thread #${metadata.releases.name}: boot start to setup`);
-
   // Setup the publish secret for first run.
   let publish = await redis.get(consts.SRS_SECRET_PUBLISH);
   if (!publish) {
