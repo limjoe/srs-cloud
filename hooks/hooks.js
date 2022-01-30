@@ -1,5 +1,14 @@
 'use strict';
 
+// For components in docker, connect by host.
+const config = {
+  redis:{
+    host: 'mgmt.srs.local',
+    port: 6379,
+    password: '',
+  },
+};
+
 const errs = require('js-core/errs');
 const utils = require('js-core/utils');
 const consts = require('js-core/consts');

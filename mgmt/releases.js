@@ -1,5 +1,14 @@
 'use strict';
 
+// For mgmt, it's ok to connect to localhost.
+const config = {
+  redis:{
+    host: 'localhost',
+    port: 6379,
+    password: '',
+  },
+};
+
 const { isMainThread, parentPort } = require("worker_threads");
 const { spawn } = require('child_process');
 const pkg = require('./package.json');
@@ -8,7 +17,7 @@ const semver = require('semver');
 const utils = require('./utils');
 const consts = require('./consts');
 const ioredis = require('ioredis');
-const redis = utils.redis({config: consts.redis, redis: ioredis});
+const redis = utils.redis({config: config.redis, redis: ioredis});
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const metadata = require('./metadata');
