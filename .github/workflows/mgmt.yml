@@ -1,4 +1,4 @@
-name: "Release mgmt releases manager"
+name: "Release releases manager for mgmt"
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - releases-v1*
 
 jobs:
-  mgmt:
-    name: releases-for-mgmt
+  docker:
+    name: releases-by-docker
     runs-on: ubuntu-20.04
 
     steps:

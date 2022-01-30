@@ -1,4 +1,4 @@
-name: "Release mgmt releases manager"
+name: "Release hooks for SRS"
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - hooks-v1*
 
 jobs:
-  mgmt:
-    name: releases-for-hooks
+  docker:
+    name: releases-by-docker
     runs-on: ubuntu-20.04
 
     steps:
@@ -33,7 +33,7 @@ jobs:
       - name: Build SRS docker image
         run: |
           echo "Release ossrs/srs-terraform:$SRS_TAG"
-          docker build --tag ossrs/srs-terraform:$SRS_TAG -f mgmt/hooks/Dockerfile .
+          docker build --tag ossrs/srs-terraform:$SRS_TAG -f hooks/Dockerfile .
 
       ################################################################
       # Aliyun ACR
