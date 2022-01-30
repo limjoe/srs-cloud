@@ -77,6 +77,7 @@ async function startContainer() {
     --add-host=mgmt.srs.local:${privateIPv4.address} \\
     -v ${confFile}:/usr/local/srs/conf/lighthouse.conf \\
     -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 8000:8000/udp -p 10080:10080/udp \\
+    --log-driver json-file --log-opt max-size=3g --log-opt max-file=3 \\
     registry.cn-hangzhou.aliyuncs.com/${image}:${metadata.srs.major} \\
     ./objs/srs -c conf/lighthouse.conf`;
   console.log(`Thread #${metadata.srs.name}: docker run args ip=${privateIPv4.name}/${privateIPv4.address}, conf=${confFile}, docker run ${dockerArgs}`);

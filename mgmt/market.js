@@ -77,6 +77,7 @@ async function startContainer() {
     --add-host=mgmt.srs.local:${privateIPv4.address} \\
     -v ${envFile}:/srs-terraform/hooks/.env \\
     -p ${metadata.market.hooks.port}:${metadata.market.hooks.port} \\
+    --log-driver json-file --log-opt max-size=1g --log-opt max-file=3 \\
     ${metadata.market.hooks.image} \\
     node . >hooks.log 2>&1`;
   console.log(`Thread #market: docker run args ip=${privateIPv4.name}/${privateIPv4.address}, docker run ${dockerArgs}`);
