@@ -17,6 +17,9 @@ const redis = require('js-core/redis').create({config: config.redis, redis: iore
 const jwt = require('jsonwebtoken');
 
 exports.handle = (router) => {
+  // Init the secrets.
+  init();
+
   // See https://github.com/ossrs/srs/wiki/v4_EN_HTTPCallback
   router.all('/terraform/v1/hooks/srs/verify', async (ctx) => {
     const {action, param} = ctx.request.body;
@@ -44,4 +47,18 @@ exports.handle = (router) => {
 
   return router;
 };
+
+async function init() {
+  // To prevent boot again and again.
+  await redis.set(consts.SRS_FIRST_BOOT_DONE, 1);
+  console.log(`Thread #${metadata.releases.name}: boot start to setup`);
+
+  // Setup the publish secret for first run.
+  let publish = await redis.get(consts.SRS_SECRET_PUBLISH);
+  if (!publish) {
+    publish = Math.random().toString(16).slice(-8);
+    const r0 = await redis.set(consts.SRS_SECRET_PUBLISH, publish);
+    console.log(`Thread #${metadata.releases.name}: boot create secret, key=${consts.SRS_SECRET_PUBLISH}, value=${'*'.repeat(publish.length)}, r0=${r0}`);
+  }
+}
 
