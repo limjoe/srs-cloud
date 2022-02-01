@@ -7,33 +7,23 @@ A control panel for SRS, to terraform the open-source video platform
 Install dependencies:
 
 ```bash
-cd mgmt
-npm install
+cd releases && npm install
+cd hooks && npm install
+cd mgmt && npm install
 ```
 
-Build UI:
+Run the releases:
 
-```bash
-cd mgmt
-npm run build
 ```
-
-Run server with UI:
-
-```bash
-cd mgmt
+cd releases
 npm start
 ```
 
-Access the browser: http://localhost:2022/mgmt
+Run the hooks:
 
-## Development
-
-Install dependencies:
-
-```bash
-cd mgmt
-npm install
+```
+cd hooks
+npm start
 ```
 
 Run the backend:
@@ -72,7 +62,7 @@ The features that we're developing:
 * [x] Support publish by RTMP/WebRTC, play by RTMP/HTTP-FLV/HLS/WebRTC.
 * [x] SRS container write containers/objs/srs.log for logging.
 * [x] Support high-resolution and realtime(200~500ms) live streaming by SRT.
-* [ ] Run SRS hooks in docker, to callback by SRS server.
+* [x] Run SRS hooks in docker, to callback by SRS server.
 * [ ] Support publish by SRT, play by RTMP/HTTP-FLV/HLS/WebRTC/SRT.
 * [ ] Collect logs of mgmt and containers together.
 * [ ] Stop, restart and upgrade containers.
