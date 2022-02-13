@@ -10,10 +10,31 @@ export default function Config() {
   const [key, setKey] = React.useState();
   const [crt, setCrt] = React.useState();
   const [domain, setDomain] = React.useState();
+  const [secretId, setSecretId] = React.useState();
+  const [secretKey, setSecretKey] = React.useState();
 
   const sslTutorials = useTutorials([
     {author: '程晓龙', id: 'BV1tZ4y1R7qp'},
   ]);
+
+  const updateTencentSecret = (e) => {
+    e.preventDefault();
+
+    const token = Token.load();
+    axios.post('/terraform/v1/tencent/cam/secret', {
+      ...token, secretId, secretKey,
+    }).then(res => {
+      alert('腾讯云访问密钥设置成功');
+    }).catch(e => {
+      const err = e.response.data;
+      if (err.code === Errors.auth) {
+        alert(`Token过期，请重新登录，${err.code}: ${err.data.message}`);
+        navigate('/routers-logout');
+      } else {
+        alert(`服务器错误，${err.code}: ${err.data.message}`);
+      }
+    });
+  };
 
   const enablePlatformAccess = (e, enabled) => {
     e.preventDefault();
@@ -89,7 +110,7 @@ export default function Config() {
     <>
       <p></p>
       <Container>
-        <Accordion defaultActiveKey="0">
+        <Accordion defaultActiveKey="2">
           <Accordion.Item eventKey="0">
             <Accordion.Header>HTTPS: Let's Encrypt</Accordion.Header>
             <Accordion.Body>
@@ -128,6 +149,32 @@ export default function Config() {
             </Accordion.Body>
           </Accordion.Item>
           <Accordion.Item eventKey="2">
+            <Accordion.Header>腾讯云密钥(Secret)</Accordion.Header>
+            <Accordion.Body>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>SecretId</Form.Label>
+                  <Form.Text> * 腾讯云的账号ID</Form.Text>
+                  <Form.Control as="textarea" rows={2} defaultValue={secretId} onChange={(e) => {
+                    e.preventDefault();
+                    setSecretId(e.target.value);
+                  }} />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>SecretKey</Form.Label>
+                  <Form.Text> * 腾讯云的账号Secret</Form.Text>
+                  <Form.Control as="textarea" rows={2} defaultValue={secretKey} onChange={(e) => {
+                    e.preventDefault();
+                    setSecretKey(e.target.value);
+                  }} />
+                </Form.Group>
+                <Button variant="primary" type="submit" onClick={(e) => updateTencentSecret(e)}>
+                  设置账号
+                </Button>
+              </Form>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="3">
             <Accordion.Header>授权平台管理员</Accordion.Header>
             <Accordion.Body>
               <Form>

@@ -52,6 +52,7 @@ The ports allocated:
 | releases | 2023 |  - | Mount at `/terraform/v1/releases` |
 | mgmt | 2022 |  - | Mount at `/mgmt/` and `/terraform/v1/mgmt/` |
 | hooks | 2021 |  - | Mount at `/terraform/v1/hooks/` |
+| tencent-cloud | 2020 |  - | Mount at `/terraform/v1/tencent/` |
 | prometheus | 9090 | - | Mount at `/prometheus` |
 | node-exporter | 9100 | - | - |
 
@@ -95,6 +96,7 @@ Market:
 
 * `/terraform/v1/hooks/srs/verify` Hooks: Verify the stream request URL of SRS.
 * `/terraform/v1/hooks/srs/secret` Hooks: Query the secret to generate stream URL.
+* `/terraform/v1/tencent/cam/secret` Tencent: Setup the CAM SecretId and SecretKey.
 * `/prometheus` Prometheus: Time-series database and monitor.
 
 ## Depends
@@ -111,6 +113,7 @@ The software we depend on:
 * [SRS](https://github.com/ossrs/srs), `docker --name srs-server`
   * Config: `mgmt/containers/conf/srs.conf`
 * [srs-hooks](https://github.com/ossrs/srs-terraform/tree/lighthouse/hooks), `docker --name srs-hooks`
+* [tencent-cloud](https://github.com/ossrs/srs-terraform/tree/lighthouse/tencent), `docker --name tencent-cloud`
 * [Prometheus](https://github.com/prometheus/prometheus#install), `docker --name prometheus`
   * Config: `mgmt/containers/conf/prometheus.yml`
   * Data directory: `mgmt/containers/data/prometheus`
