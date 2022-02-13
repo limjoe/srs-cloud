@@ -110,7 +110,7 @@ export default function Config() {
     <>
       <p></p>
       <Container>
-        <Accordion defaultActiveKey="2">
+        <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">
             <Accordion.Header>HTTPS: Let's Encrypt</Accordion.Header>
             <Accordion.Body>
